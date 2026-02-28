@@ -21,6 +21,12 @@ dependencies:
   sqflite: ^2.3.2
   path: ^1.9.0
 
+  # Diretório de documentos do app (onde fotos são salvas)
+  path_provider: ^2.1.0
+
+  # Redimensionamento e compressão de imagens (fotos de alunos)
+  flutter_image_compress: ^2.1.0
+
   # Modelos imutáveis e geração de código
   freezed_annotation: ^2.4.1
   json_annotation: ^4.9.0
