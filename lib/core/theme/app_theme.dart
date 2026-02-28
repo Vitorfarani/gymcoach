@@ -1,110 +1,172 @@
-/// Define o tema visual global do GymCoach.
-///
-/// Centralizar o tema aqui significa que mudar uma cor ou estilo
-/// reflete em todo o app automaticamente — nunca hardcode cor direto
-/// em widget. Se amanhã o cliente quiser trocar o azul por verde,
-/// muda só aqui.
+// app_theme.dart
+//
+// Define o ThemeData completo do GymCoach (dark theme).
+//
+// REGRA: nenhuma cor ou dimensão deve ser hardcoded nos widgets.
+// Sempre referencie AppColors e AppDimensions aqui — ou acesse o tema
+// via Theme.of(context) nas telas.
+//
+// Se amanhã uma cor mudar, muda só em AppColors e reflete em todo o app.
+
 import 'package:flutter/material.dart';
 
+import '../constants/app_colors.dart';
+import '../constants/app_dimensions.dart';
+
 class AppTheme {
-  // Construtor privado: essa classe não deve ser instanciada.
+  // Impede instanciação — apenas namespace com o getter do tema.
   AppTheme._();
 
-  /// Azul principal — usado em botões, ícones ativos e destaques.
-  static const Color primary = Color(0xFF1E88E5);
-
-  /// Fundo geral das telas — quase preto para reduzir cansaço visual
-  /// em ambientes de academia com iluminação artificial intensa.
-  static const Color background = Color(0xFF121212);
-
-  /// Fundo de cards e superfícies elevadas.
-  static const Color surface = Color(0xFF1E1E1E);
-
-  /// Fundo de inputs e elementos de formulário.
-  static const Color surfaceVariant = Color(0xFF2C2C2C);
-
-  /// Cor do texto e ícones sobre fundo primário (azul).
-  static const Color onPrimary = Color(0xFFFFFFFF);
-
-  /// Cor do texto principal sobre o fundo geral.
-  static const Color onBackground = Color(0xFFFFFFFF);
-
-  /// Cor do texto sobre cards e superfícies.
-  static const Color onSurface = Color(0xFFE0E0E0);
-
-  /// Cor do texto secundário e placeholders.
-  static const Color onSurfaceVariant = Color(0xFF9E9E9E);
-
-  /// Cor para estados de erro em formulários e alertas.
-  static const Color error = Color(0xFFCF6679);
-
-  /// Retorna o ThemeData completo do app.
+  /// ThemeData dark do app. Usado em MaterialApp(theme: AppTheme.dark).
   static ThemeData get dark {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
 
+      // ColorScheme é o "sistema nervoso" do Material 3 — define quais cores
+      // vão em quais papéis (primary, surface, error, etc.).
+      // Widgets do Flutter leem daqui automaticamente.
       colorScheme: const ColorScheme.dark(
-        primary: primary,
-        onPrimary: onPrimary,
-        // Em Material 3 moderno, surface substitui background.
-        surface: background,
-        onSurface: onBackground,
-        error: error,
+        primary: AppColors.primary,
+        onPrimary: AppColors.onPrimary,
+        // No Material 3, "surface" substituiu "background" como slot principal.
+        // Passamos AppColors.background aqui para que o Scaffold use a cor certa.
+        surface: AppColors.background,
+        onSurface: AppColors.onBackground,
+        error: AppColors.error,
+        onError: AppColors.onError,
+        // surfaceContainerHighest é o slot do M3 que mapeia para o que
+        // antes era surfaceVariant — usado em chips, inputs e outros elementos.
+        surfaceContainerHighest: AppColors.surfaceVariant,
       ),
 
-      scaffoldBackgroundColor: background,
+      scaffoldBackgroundColor: AppColors.background,
 
-      // CardThemeData (renomeado no Flutter 3.18+) — sem elevação,
-      // separação visual feita pela diferença de cor entre surface e background.
-      cardTheme: const CardThemeData(
-        color: surface,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-      ),
-
-      // AppBar sem elevação para visual flat e moderno.
-      appBarTheme: const AppBarTheme(
-        backgroundColor: background,
+      // -------------------------------------------------------------------------
+      // AppBar
+      // -------------------------------------------------------------------------
+      // Flat (elevation 0) — separação visual feita pela diferença de cor,
+      // não por sombra. Mais limpo no dark theme.
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          color: onBackground,
-          fontSize: 20,
+          color: AppColors.onBackground,
+          fontSize: AppDimensions.fontXL,
           fontWeight: FontWeight.w600,
         ),
-        iconTheme: IconThemeData(color: onBackground),
+        iconTheme: const IconThemeData(color: AppColors.onBackground),
       ),
 
-      // Altura mínima de 52px — área de toque recomendada pelo Material Design
-      // para evitar erros com mãos suadas em academia.
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          foregroundColor: onPrimary,
-          minimumSize: const Size(double.infinity, 52),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      // -------------------------------------------------------------------------
+      // Cards
+      // -------------------------------------------------------------------------
+      // Elevation 0 — sem sombra. A diferença de cor entre surface (#1E1E1E)
+      // e background (#121212) já cria a hierarquia visual.
+      cardTheme: const CardThemeData(
+        color: AppColors.surface,
+        elevation: AppDimensions.cardElevation,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(AppDimensions.radiusL),
           ),
         ),
       ),
 
-      // Borda só aparece no foco — reduz ruído visual no formulário.
+      // -------------------------------------------------------------------------
+      // ElevatedButton — botão primário (ex: "Salvar", "Iniciar Sessão")
+      // -------------------------------------------------------------------------
+      // minimumSize garante área de toque de 52dp de altura — importante
+      // para uso com mãos suadas em ambiente de academia.
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.onPrimary,
+          minimumSize: const Size(double.infinity, AppDimensions.buttonHeight),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+          ),
+        ),
+      ),
+
+      // -------------------------------------------------------------------------
+      // TextButton — botão secundário (ex: "Cancelar", links)
+      // -------------------------------------------------------------------------
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          minimumSize: const Size(0, AppDimensions.buttonHeight),
+        ),
+      ),
+
+      // -------------------------------------------------------------------------
+      // FloatingActionButton — botões flutuantes (ex: "Novo Aluno")
+      // -------------------------------------------------------------------------
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
+        elevation: 4,
+      ),
+
+      // -------------------------------------------------------------------------
+      // Campos de texto (TextField / TextFormField)
+      // -------------------------------------------------------------------------
+      // filled + fillColor: campo com fundo colorido, sem borda por padrão.
+      // Borda só aparece no foco (focusedBorder) — reduz ruído visual
+      // quando o formulário tem muitos campos.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surfaceVariant,
+        fillColor: AppColors.inputFill,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppDimensions.paddingM,
+          vertical: AppDimensions.paddingM,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primary, width: 2),
+          borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
-        labelStyle: const TextStyle(color: onSurfaceVariant),
-        floatingLabelStyle: const TextStyle(color: primary),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(color: AppColors.error, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
+        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        floatingLabelStyle: const TextStyle(color: AppColors.primary),
+        hintStyle: const TextStyle(color: AppColors.textHint),
+        errorStyle: const TextStyle(color: AppColors.error),
+      ),
+
+      // -------------------------------------------------------------------------
+      // Divisores entre itens de lista
+      // -------------------------------------------------------------------------
+      dividerTheme: const DividerThemeData(
+        color: AppColors.divider,
+        thickness: 1,
+        space: 1,
+      ),
+
+      // -------------------------------------------------------------------------
+      // SnackBar — notificações de sucesso e erro
+      // -------------------------------------------------------------------------
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.surfaceVariant,
+        contentTextStyle: const TextStyle(color: AppColors.textPrimary),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+        ),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }

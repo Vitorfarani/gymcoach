@@ -107,8 +107,10 @@ class AppDimensions {
   // BOTÕES
   // ===========================================================================
 
-  /// Altura padrão de botões primários e secundários.
-  static const buttonHeight = 48.0;
+  /// Altura mínima de botões primários e secundários.
+  /// 52dp garante área de toque segura com mãos suadas em academia
+  /// — recomendação Material Design para ambientes físicos.
+  static const buttonHeight = 52.0;
 
   /// Border radius dos botões.
   static const buttonRadius = 8.0;
