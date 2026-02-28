@@ -222,4 +222,12 @@ class AppStrings {
   static const erroBancoDados       = 'Erro ao acessar os dados. Tente novamente.';
   static const erroImagemGrande     = 'A imagem não pode ser maior que 5 MB.';
   static const erroProcessarImagem  = 'Erro ao processar a imagem. Tente outra foto.';
+
+  // Validação dos campos do formulário de aluno
+  static const erroNomeObrigatorio = 'Nome é obrigatório.';
+  static const erroNomeInvalido    = 'Nome deve ter entre 2 e 60 caracteres.';
+  static const erroIdadeInvalida   = 'Idade deve estar entre 10 e 99 anos.';
+  static const erroPesoInvalido    = 'Peso deve estar entre 30 e 250 kg.';
+  static const erroAlturaInvalida  = 'Altura deve estar entre 100 e 250 cm.';
+  static const erroNumeroInvalido  = 'Valor inválido. Use apenas números.';
 }
