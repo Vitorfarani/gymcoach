@@ -119,9 +119,10 @@ class DashboardScreen extends ConsumerWidget {
       ),
 
       actions: [
-        // context.go() substitui a pilha (não cria botão voltar no topo de /alunos).
+        // context.push() empilha /alunos sobre o Dashboard, garantindo que o
+        // botão Voltar da ListaAlunos retorne ao Dashboard (doc3: "Botão voltar → /").
         TextButton(
-          onPressed: () => context.go('/alunos'),
+          onPressed: () => context.push('/alunos'),
           child: const Text(AppStrings.dashboardVerTodos),
         ),
       ],
