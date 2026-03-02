@@ -7,7 +7,7 @@
 //   via routerProvider para que o app.dart possa consumi-lo.
 //
 // ESTRUTURA DE ROTAS:
-//   /                          → Dashboard (placeholder)
+//   /                          → DashboardScreen
 //   /alunos                    → ListaAlunosScreen
 //   /alunos/novo               → CadastroAlunoScreen
 //   /alunos/:alunoId           → PerfilAlunoScreen
@@ -25,6 +25,7 @@ import '../features/alunos/presentation/screens/cadastro_aluno_screen.dart';
 import '../features/alunos/presentation/screens/edicao_aluno_screen.dart';
 import '../features/alunos/presentation/screens/lista_alunos_screen.dart';
 import '../features/alunos/presentation/screens/perfil_aluno_screen.dart';
+import '../features/dashboard/presentation/screens/dashboard_screen.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // ROUTER PROVIDER
@@ -52,7 +53,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ── Dashboard ─────────────────────────────────────────────────────────
       GoRoute(
         path: '/',
-        builder: (context, state) => const _DashboardPlaceholder(),
+        builder: (context, state) => const DashboardScreen(),
       ),
 
       // ── Alunos ────────────────────────────────────────────────────────────
@@ -116,39 +117,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 //
 // Widgets privados (prefixo _) — só visíveis dentro deste arquivo.
 // Serão deletados quando as features reais forem implementadas.
-
-/// Placeholder do Dashboard até a feature ser criada.
-///
-/// Mostra o nome do app e um botão para navegar para a lista de alunos,
-/// suficiente para testar que a rota '/' está funcionando.
-class _DashboardPlaceholder extends StatelessWidget {
-  const _DashboardPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('GymCoach')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Dashboard em breve',
-              style: TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              // go() substitui a pilha — é a navegação correta para um menu
-              // principal (não queremos "voltar para o dashboard" depois).
-              onPressed: () => context.go('/alunos'),
-              child: const Text('Ver Alunos'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 /// Placeholder genérico para rotas ainda não implementadas.
 ///

@@ -39,11 +39,19 @@ class AppStrings {
   // DASHBOARD — tela "/"
   // ===========================================================================
 
-  static const dashboardTitulo          = 'GymCoach';
-  static const dashboardAlunosAtivos    = 'Alunos ativos';
-  static const dashboardUltimosAcessados = 'Últimos acessados';
-  static const dashboardNenhumAluno     = 'Nenhum aluno cadastrado ainda.';
+  static const dashboardTitulo            = 'GymCoach';
+  static const dashboardBoasVindas        = 'Bem-vindo, Professor';
+  static const dashboardAlunosAtivos      = 'alunos ativos';
+  static const dashboardAlunoAtivo        = 'aluno ativo';
+  static const dashboardAlunosRecentes    = 'Alunos Recentes';
+  static const dashboardVerTodos          = 'Ver todos';
+  static const dashboardUltimosAcessados  = 'Últimos acessados';
+  static const dashboardNenhumAluno       = 'Nenhum aluno cadastrado ainda.';
   static const dashboardCadastrarPrimeiro = 'Cadastrar primeiro aluno';
+
+  /// Formata o subtitle do AppBar: "1 aluno ativo" ou "3 alunos ativos".
+  static String dashboardContagemAtivos(int count) =>
+      '$count ${count == 1 ? dashboardAlunoAtivo : dashboardAlunosAtivos}';
 
   // ===========================================================================
   // ALUNOS
