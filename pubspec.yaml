@@ -38,6 +38,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  # Banco em memória para testes de DAO sem emulador
+  sqflite_common_ffi: ^2.3.4
+
   # Geradores de código (só rodam em desenvolvimento)
   build_runner: ^2.4.9
   freezed: ^2.5.2
