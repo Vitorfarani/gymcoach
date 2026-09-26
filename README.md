@@ -1,409 +1,359 @@
 # 💪 GymCoach
 
-> Aplicativo mobile offline para professores de academia gerenciarem alunos, treinos e evolução de carga.
+> Offline mobile app for gym coaches to manage their students, workout plans and strength progression.
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)
 ![Dart](https://img.shields.io/badge/Dart-3.10+-0175C2?logo=dart)
 ![SQLite](https://img.shields.io/badge/SQLite-Local-003B57?logo=sqlite)
 ![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)
-![Status](https://img.shields.io/badge/Status-Em%20desenvolvimento-yellow)
+![Status](https://img.shields.io/badge/Status-In%20development-yellow)
 
 ---
 
-## 📋 Índice
+## 📋 Table of Contents
 
-- [Sobre o projeto](#-sobre-o-projeto)
-- [Funcionalidades](#-funcionalidades)
-- [Arquitetura](#-arquitetura)
-- [Estrutura de pastas](#-estrutura-de-pastas)
-- [Banco de dados](#-banco-de-dados)
-- [Tecnologias e dependências](#-tecnologias-e-dependências)
-- [Pré-requisitos](#-pré-requisitos)
-- [Como rodar o projeto](#-como-rodar-o-projeto)
-- [Como rodar os testes](#-como-rodar-os-testes)
-- [Decisões de arquitetura](#-decisões-de-arquitetura)
+- [About](#-about)
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Folder structure](#-folder-structure)
+- [Database](#-database)
+- [Tech stack and dependencies](#-tech-stack-and-dependencies)
+- [Prerequisites](#-prerequisites)
+- [Running the project](#-running-the-project)
+- [Running the tests](#-running-the-tests)
+- [Architecture decisions](#-architecture-decisions)
 - [Roadmap](#-roadmap)
-- [Princípios aplicados](#-princípios-aplicados)
+- [Principles applied](#-principles-applied)
 
 ---
 
-## 📌 Sobre o projeto
+## 📌 About
 
-O GymCoach nasceu para resolver um problema real de professores de academia: gerenciar alunos e treinos ainda acontece em cadernos, planilhas e grupos de WhatsApp.
+GymCoach was built to solve a real problem for gym coaches: managing students and workouts still happens in notebooks, spreadsheets and WhatsApp groups.
 
-O app permite que o professor cadastre alunos, monte treinos personalizados, acompanhe a evolução de carga de cada exercício e tenha tudo centralizado no celular — funcionando 100% offline, sem depender de internet ou servidores externos.
+The app lets a coach register students, build personalised workout plans, track load progression for each exercise and keep everything in one place on their phone. It works 100% offline, with no dependency on internet access or external servers.
 
-### Contexto da versão atual (MVP 1.0)
-- Usuário único: o professor
-- Funciona totalmente offline
-- Dados salvos localmente com SQLite
-- Sem login, sem sincronização, sem planos
+### Current version (MVP 1.0)
+- Single user: the coach
+- Fully offline
+- Data stored locally with SQLite
+- No login, no sync, no subscription plans
 
-A arquitetura foi desenhada para escalar: quando o produto crescer para múltiplos professores e acesso dos alunos, a camada de dados pode ser trocada por uma API sem tocar nas telas ou regras de negócio.
+The architecture is designed to scale: when the product grows to support multiple coaches and student access, the data layer can be swapped for an API without touching the screens or business rules.
+
+> **Note:** the codebase uses Portuguese domain names (`aluno` = student, `treino` = workout, `exercicio` = exercise, `historico_carga` = load history).
 
 ---
 
-## ✅ Funcionalidades
+## ✅ Features
 
 ### MVP 1.0
-- [x] Cadastro, edição e listagem de alunos
-- [x] Foto de perfil do aluno
-- [x] Criação de treinos (nome livre: A, B, C ou qualquer nome)
-- [x] Adição e reordenação de exercícios dentro do treino
-- [x] Registro de séries, repetições, carga e tempo de descanso
-- [x] Histórico de carga por exercício
-- [x] Dashboard com resumo geral
-- [x] Arquivamento de alunos inativos
-- [x] Arquivamento de treinos antigos
+- [x] Create, edit and list students
+- [x] Student profile photo
+- [x] Create workouts (any name: A, B, C or custom)
+- [x] Add and reorder exercises within a workout
+- [x] Record sets, reps, load and rest time
+- [x] Load history per exercise
+- [x] Dashboard with an overall summary
+- [x] Archive inactive students
+- [x] Archive old workouts
 
-### Futuro (pós-MVP)
-- [ ] Acesso do aluno ao próprio treino
-- [ ] Sincronização na nuvem
-- [ ] Suporte a múltiplos professores
-- [ ] Notificações e lembretes
-- [ ] Exportação de treino em PDF
+### Future (post-MVP)
+- [ ] Student access to their own workouts
+- [ ] Cloud sync
+- [ ] Multiple coaches
+- [ ] Notifications and reminders
+- [ ] Export workouts to PDF
 
 ---
 
-## 🏗 Arquitetura
+## 🏗 Architecture
 
-O projeto segue **Clean Architecture** com separação em 3 camadas por feature:
+The project follows **Clean Architecture**, with 3 layers per feature:
 
 ```
 Presentation  →  Domain  →  Data
-(Telas/State)    (Regras)    (Banco/API)
+(Screens/State)  (Rules)    (Database/API)
 ```
 
-### Regra de dependência
-As camadas externas conhecem as internas, nunca o contrário.
-- `Presentation` depende de `Domain`
-- `Data` depende de `Domain`
-- `Domain` não depende de nada — é Dart puro
+### Dependency rule
+Outer layers know about inner layers, never the other way round.
+- `Presentation` depends on `Domain`
+- `Data` depends on `Domain`
+- `Domain` depends on nothing: it is pure Dart
 
-Isso garante que trocar o SQLite por uma API no futuro exige criar uma nova implementação em `Data`, sem tocar em nenhuma tela ou regra de negócio.
+This means replacing SQLite with an API in the future only requires a new implementation in `Data`, without touching any screen or business rule.
 
-### Fluxo de dados
+### Data flow
 ```
-Tela → Provider (Riverpod) → UseCase → Repository (contrato) → RepositoryImpl → DAO → SQLite
+Screen → Provider (Riverpod) → UseCase → Repository (contract) → RepositoryImpl → DAO → SQLite
 ```
 
 ---
 
-## 📁 Estrutura de pastas
+## 📁 Folder structure
 
 ```
 lib/
-├── main.dart                        # Ponto de entrada — só inicializa o app
+├── main.dart                        # Entry point: only bootstraps the app
 ├── app/
-│   ├── app.dart                     # MaterialApp + tema + ProviderScope
-│   └── router.dart                  # Todas as rotas com GoRouter
+│   ├── app.dart                     # MaterialApp + theme + ProviderScope
+│   └── router.dart                  # All routes with GoRouter
 │
-├── core/                            # Utilitários compartilhados por todo o app
-│   ├── constants/
-│   │   └── app_strings.dart         # Textos fixos centralizados
+├── core/                            # Utilities shared across the app
+│   ├── constants/                   # Centralised strings, colours and dimensions
 │   ├── database/
-│   │   └── database_helper.dart     # Singleton de conexão com SQLite
+│   │   └── database_helper.dart     # SQLite connection singleton
 │   ├── errors/
-│   │   ├── exceptions.dart          # Exceções da camada de dados
-│   │   └── failures.dart            # Falhas da camada de domínio
-│   └── theme/
-│       └── app_theme.dart           # Cores, fontes e estilos globais
+│   │   ├── exceptions.dart          # Data layer exceptions
+│   │   └── failures.dart            # Domain layer failures
+│   ├── theme/
+│   │   └── app_theme.dart           # Global colours, fonts and styles
+│   └── utils/
+│       └── image_helper.dart        # Photo resizing and storage
 │
 ├── shared/
-│   └── widgets/                     # Widgets reutilizáveis entre features
+│   └── widgets/                     # Widgets reused across features
 │       ├── confirm_dialog.dart
 │       ├── empty_state_widget.dart
 │       ├── error_widget.dart
 │       └── loading_widget.dart
 │
 └── features/
-    ├── alunos/
+    ├── alunos/                      # Students
     │   ├── data/
-    │   │   ├── datasources/
-    │   │   │   └── aluno_dao.dart               # Queries SQL de alunos
-    │   │   └── repositories/
-    │   │       └── aluno_repository_impl.dart   # Implementação com SQLite
+    │   │   ├── datasources/         # SQL queries (DAOs)
+    │   │   └── repositories/        # SQLite implementation of the contract
     │   ├── domain/
-    │   │   ├── entities/
-    │   │   │   └── aluno.dart                   # Model: o que é um Aluno
-    │   │   ├── repositories/
-    │   │   │   └── aluno_repository.dart        # Contrato do repositório
-    │   │   └── usecases/
-    │   │       ├── get_alunos.dart
-    │   │       ├── get_aluno_by_id.dart
-    │   │       ├── save_aluno.dart
-    │   │       └── delete_aluno.dart
+    │   │   ├── entities/            # Immutable models (Freezed)
+    │   │   ├── repositories/        # Repository contract
+    │   │   └── usecases/            # One class per use case
     │   └── presentation/
-    │       ├── providers/
-    │       │   └── alunos_provider.dart         # Estado com Riverpod
+    │       ├── providers/           # State with Riverpod
     │       ├── screens/
-    │       │   ├── alunos_screen.dart
-    │       │   ├── aluno_form_screen.dart
-    │       │   └── aluno_detail_screen.dart
     │       └── widgets/
-    │           └── aluno_card.dart
     │
-    ├── treinos/
+    ├── treinos/                     # Workouts, exercises and load history
     │   ├── data/
-    │   │   ├── datasources/
-    │   │   │   ├── treino_dao.dart
-    │   │   │   ├── treino_exercicio_dao.dart
-    │   │   │   └── historico_carga_dao.dart
-    │   │   └── repositories/
-    │   │       └── treino_repository_impl.dart
     │   ├── domain/
-    │   │   ├── entities/
-    │   │   │   ├── treino.dart
-    │   │   │   ├── treino_exercicio.dart
-    │   │   │   └── historico/
-    │   │   │       └── historico_carga.dart
-    │   │   ├── repositories/
-    │   │   │   └── treino_repository.dart
-    │   │   └── usecases/
-    │   │       ├── get_treinos_by_aluno.dart
-    │   │       ├── save_treino.dart
-    │   │       ├── delete_treino.dart
-    │   │       ├── save_exercicio.dart
-    │   │       ├── delete_exercicio.dart
-    │   │       ├── save_historico_carga.dart
-    │   │       └── get_historico_carga.dart
     │   └── presentation/
-    │       ├── providers/
-    │       │   └── treinos_provider.dart
-    │       ├── screens/
-    │       │   ├── treinos_screen.dart
-    │       │   ├── treino_form_screen.dart
-    │       │   └── exercicio_form_screen.dart
-    │       └── widgets/
-    │           ├── treino_card.dart
-    │           └── exercicio_card.dart
     │
-    └── dashboard/
-        ├── data/
-        ├── domain/
+    └── dashboard/                   # Overview screen
         └── presentation/
-            ├── providers/
-            │   └── dashboard_provider.dart
-            ├── screens/
-            │   └── dashboard_screen.dart
-            └── widgets/
-                └── resumo_card.dart
 
 test/
-├── features/
-│   ├── alunos/
-│   │   ├── data/                    # Testes dos DAOs e repositórios
-│   │   └── domain/                  # Testes dos usecases
-│   └── treinos/
-│       ├── data/
-│       └── domain/
-└── core/
-    └── database/                    # Testes do helper de banco
+└── features/
+    └── treinos/
+        └── data/                    # DAO tests with in-memory SQLite
 ```
 
 ---
 
-## 🗄 Banco de dados
+## 🗄 Database
 
-### Tabela: `alunos`
+### Table: `alunos` (students)
 
-| Coluna | Tipo | Obrigatório | Descrição |
-|--------|------|-------------|-----------|
-| id | INTEGER PK | sim | Auto incremento |
-| nome | TEXT | sim | Nome completo |
-| idade | INTEGER | não | — |
-| peso | REAL | não | Em kg |
-| altura | REAL | não | Em metros |
-| data_nascimento | TEXT | não | ISO 8601 |
-| telefone | TEXT | não | — |
-| objetivo | TEXT | não | — |
-| observacoes | TEXT | não | — |
-| foto_path | TEXT | não | Caminho local da foto |
-| data_inicio | TEXT | sim | ISO 8601 |
-| ativo | INTEGER | sim | 1 = ativo, 0 = inativo |
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| id | INTEGER PK | yes | Auto increment |
+| nome | TEXT | yes | Full name |
+| idade | INTEGER | no | Age |
+| peso | REAL | no | Weight in kg |
+| altura | REAL | no | Height in metres |
+| data_nascimento | TEXT | no | Date of birth, ISO 8601 |
+| telefone | TEXT | no | Phone number |
+| objetivo | TEXT | no | Goal |
+| observacoes | TEXT | no | Notes |
+| foto_path | TEXT | no | Local photo path |
+| data_inicio | TEXT | yes | Start date, ISO 8601 |
+| ativo | INTEGER | yes | 1 = active, 0 = inactive |
 
-### Tabela: `treinos`
+### Table: `treinos` (workouts)
 
-| Coluna | Tipo | Obrigatório | Descrição |
-|--------|------|-------------|-----------|
-| id | INTEGER PK | sim | Auto incremento |
-| aluno_id | INTEGER FK | sim | Referência para alunos |
-| nome | TEXT | sim | Ex: "Treino A", "Peito" |
-| objetivo | TEXT | não | Foco do treino |
-| ativo | INTEGER | sim | 1 = ativo, 0 = arquivado |
-| data_criacao | TEXT | sim | ISO 8601 |
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| id | INTEGER PK | yes | Auto increment |
+| aluno_id | INTEGER FK | yes | References `alunos` |
+| nome | TEXT | yes | e.g. "Workout A", "Chest" |
+| objetivo | TEXT | no | Workout focus |
+| ativo | INTEGER | yes | 1 = active, 0 = archived |
+| data_criacao | TEXT | yes | Created at, ISO 8601 |
 
-### Tabela: `treino_exercicios`
+### Table: `treino_exercicios` (workout exercises)
 
-| Coluna | Tipo | Obrigatório | Descrição |
-|--------|------|-------------|-----------|
-| id | INTEGER PK | sim | Auto incremento |
-| treino_id | INTEGER FK | sim | Referência para treinos |
-| nome_exercicio | TEXT | sim | — |
-| series | INTEGER | não | — |
-| repeticoes | TEXT | não | TEXT pois pode ser "até a falha" |
-| carga | REAL | não | Em kg |
-| tempo_descanso | INTEGER | não | Em segundos |
-| observacao | TEXT | não | — |
-| ordem | INTEGER | sim | Para reordenação |
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| id | INTEGER PK | yes | Auto increment |
+| treino_id | INTEGER FK | yes | References `treinos` |
+| nome_exercicio | TEXT | yes | Exercise name |
+| series | INTEGER | no | Sets |
+| repeticoes | TEXT | no | Reps. TEXT because it can be "to failure" |
+| carga | REAL | no | Load in kg |
+| tempo_descanso | INTEGER | no | Rest time in seconds |
+| observacao | TEXT | no | Notes |
+| ordem | INTEGER | yes | Position, used for reordering |
 
-### Tabela: `historico_carga`
+### Table: `historico_carga` (load history)
 
-| Coluna | Tipo | Obrigatório | Descrição |
-|--------|------|-------------|-----------|
-| id | INTEGER PK | sim | Auto incremento |
-| exercicio_id | INTEGER FK | sim | Referência para treino_exercicios |
-| carga | REAL | sim | Carga registrada |
-| repeticoes | TEXT | não | Repetições realizadas |
-| data_registro | TEXT | sim | ISO 8601 |
-| observacao | TEXT | não | — |
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| id | INTEGER PK | yes | Auto increment |
+| exercicio_id | INTEGER FK | yes | References `treino_exercicios` |
+| carga | REAL | yes | Recorded load |
+| repeticoes | TEXT | no | Reps performed |
+| data_registro | TEXT | yes | Recorded at, ISO 8601 |
+| observacao | TEXT | no | Notes |
 
-### Relacionamentos
+### Relationships
 ```
 alunos ──< treinos ──< treino_exercicios ──< historico_carga
 ```
-Todos com `ON DELETE CASCADE` — deletar um aluno remove todos os dados relacionados.
+All with `ON DELETE CASCADE`: deleting a student removes all related data.
 
 ---
 
-## 📦 Tecnologias e dependências
+## 📦 Tech stack and dependencies
 
 ### Runtime
-| Pacote | Versão | Por quê |
-|--------|--------|---------|
-| flutter_riverpod | ^2.5.1 | Gerenciamento de estado e injeção de dependência |
-| riverpod_annotation | ^2.3.4 | Geração de código para providers |
-| go_router | ^13.2.0 | Navegação declarativa e escalável |
-| sqflite | ^2.3.2 | Banco de dados SQLite local |
-| path | ^1.9.0 | Localização do arquivo do banco no dispositivo |
-| freezed_annotation | ^2.4.1 | Models imutáveis com copyWith, == e toString |
-| json_annotation | ^4.9.0 | Serialização/deserialização de objetos |
+| Package | Version | Why |
+|---------|---------|-----|
+| flutter_riverpod | ^2.5.1 | State management and dependency injection |
+| riverpod_annotation | ^2.3.4 | Code generation for providers |
+| go_router | ^13.2.0 | Declarative, scalable navigation |
+| sqflite | ^2.3.2 | Local SQLite database |
+| path | ^1.9.0 | Locating the database file on the device |
+| path_provider | ^2.1.0 | App documents directory (where photos are stored) |
+| image_picker | ^1.1.2 | Pick a photo from the camera or gallery |
+| flutter_image_compress | ^2.1.0 | Resize and compress student photos |
+| freezed_annotation | ^2.4.1 | Immutable models with copyWith, == and toString |
+| json_annotation | ^4.9.0 | Object serialisation/deserialisation |
 
-### Dev (geração de código e testes)
-| Pacote | Versão | Por quê |
-|--------|--------|---------|
-| build_runner | ^2.4.9 | Executor de geradores de código |
-| freezed | ^2.5.2 | Gerador para models imutáveis |
-| riverpod_generator | ^2.4.0 | Gerador para providers Riverpod |
-| json_serializable | ^6.8.0 | Gerador para serialização JSON |
+### Dev (code generation and testing)
+| Package | Version | Why |
+|---------|---------|-----|
+| build_runner | ^2.4.9 | Runs the code generators |
+| freezed | ^2.5.2 | Generator for immutable models |
+| riverpod_generator | ^2.4.0 | Generator for Riverpod providers |
+| json_serializable | ^6.8.0 | Generator for JSON serialisation |
+| sqflite_common_ffi | ^2.3.4 | In-memory database for DAO tests without an emulator |
 
 ---
 
-## 🛠 Pré-requisitos
+## 🛠 Prerequisites
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.10 ou superior
-- [Android Studio](https://developer.android.com/studio) com emulador configurado (API 34+)
-- [VS Code](https://code.visualstudio.com/) com extensões Flutter e Dart
-- Java JDK 17 ou superior
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.10 or later
+- [Android Studio](https://developer.android.com/studio) with an emulator set up (API 34+)
+- [VS Code](https://code.visualstudio.com/) with the Flutter and Dart extensions
+- Java JDK 17 or later
 
-Verifique sua instalação:
+Check your setup:
 ```bash
 flutter doctor
 ```
-Todos os itens devem estar com ✅ antes de rodar o projeto.
+Every item should show ✅ before you run the project.
 
 ---
 
-## 🚀 Como rodar o projeto
+## 🚀 Running the project
 
-**1. Clone o repositório**
+**1. Clone the repository**
 ```bash
-git clone https://github.com/seu-usuario/gymcoach.git
+git clone https://github.com/Vitorfarani/gymcoach.git
 cd gymcoach
 ```
 
-**2. Instale as dependências**
+**2. Install dependencies**
 ```bash
 flutter pub get
 ```
 
-**3. Gere os arquivos de código automático**
+**3. Generate code**
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-**4. Inicie o emulador e rode o app**
+**4. Start the emulator and run the app**
 ```bash
 flutter run --no-enable-impeller
 ```
 
-> `--no-enable-impeller` desliga o renderizador Impeller, que é pesado demais para emuladores. Em dispositivo físico pode rodar sem essa flag.
+> `--no-enable-impeller` disables the Impeller renderer, which is too heavy for emulators. On a physical device you can run without this flag.
 
 ---
 
-## 🧪 Como rodar os testes
+## 🧪 Running the tests
 
-Rodar todos os testes:
+Run all tests:
 ```bash
 flutter test
 ```
 
-Rodar testes de uma feature específica:
+Run the tests for a specific feature:
 ```bash
-flutter test test/features/alunos/
+flutter test test/features/treinos/
 ```
 
-Rodar com cobertura:
+Run with coverage:
 ```bash
 flutter test --coverage
 ```
 
 ---
 
-## 🧠 Decisões de arquitetura
+## 🧠 Architecture decisions
 
-### Por que Clean Architecture?
-O app começa offline com SQLite, mas foi desenhado para escalar. Com Clean Architecture, trocar a fonte de dados (SQLite → API) exige criar uma nova implementação em `data/repositories/` sem tocar em nenhuma tela ou regra de negócio.
+### Why Clean Architecture?
+The app starts offline with SQLite but is designed to scale. With Clean Architecture, switching the data source (SQLite → API) only requires a new implementation in `data/repositories/`, without touching any screen or business rule.
 
-### Por que Riverpod?
-É o padrão mais robusto de gerenciamento de estado no Flutter. Resolve injeção de dependência, cache, reatividade e testabilidade sem bibliotecas extras.
+### Why Riverpod?
+It is the most robust state management approach in Flutter. It handles dependency injection, caching, reactivity and testability without extra libraries.
 
-### Por que GoRouter?
-Navegação declarativa que escala bem. Quando o app crescer para deep links, autenticação e rotas protegidas, o GoRouter suporta tudo sem refatoração.
+### Why GoRouter?
+Declarative navigation that scales well. When the app grows to need deep links, authentication and protected routes, GoRouter supports all of it without refactoring.
 
-### Por que SQLite e não Hive/Isar?
-O GymCoach tem relacionamentos reais entre entidades (aluno → treinos → exercícios → histórico). SQLite com queries relacionais é a escolha mais sólida para esse modelo de dados.
+### Why SQLite and not Hive/Isar?
+GymCoach has real relationships between entities (student → workouts → exercises → history). SQLite with relational queries is the most solid choice for this data model.
 
-### Por que Freezed nos models?
-Models imutáveis eliminam uma classe inteira de bugs. Com Freezed, você nunca modifica um objeto acidentalmente — sempre cria uma cópia com `copyWith`. Além disso, `==` e `toString` gerados automaticamente facilitam testes e debug.
+### Why Freezed for models?
+Immutable models eliminate a whole class of bugs. With Freezed you never modify an object by accident; you always create a copy with `copyWith`. The generated `==` and `toString` also make testing and debugging easier.
 
 ---
 
 ## 🗺 Roadmap
 
-### Versão 1.0 — MVP (atual)
-- Gestão completa de alunos e treinos
-- Histórico de evolução de carga
-- Funciona 100% offline
+### Version 1.0 — MVP (current)
+- Full student and workout management
+- Load progression history
+- Works 100% offline
 
-### Versão 2.0 — Multi-usuário
-- Backend na nuvem (API REST)
-- Autenticação por professor
-- Sincronização offline-first
+### Version 2.0 — Multi-user
+- Cloud backend (REST API)
+- Per-coach authentication
+- Offline-first sync
 
-### Versão 3.0 — Aluno no app
-- Acesso do aluno ao próprio treino
-- Marcação de exercícios realizados
-- Visualização da própria evolução
+### Version 3.0 — Students in the app
+- Students can access their own workouts
+- Mark exercises as done
+- View their own progress
 
 ---
 
-## 📐 Princípios aplicados
+## 📐 Principles applied
 
-| Princípio | Como está aplicado |
+| Principle | How it is applied |
 |-----------|-------------------|
-| **SOLID** | Cada arquivo tem uma responsabilidade. Contratos abstratos permitem trocar implementações. |
-| **DRY** | Textos em `app_strings`, cores em `app_theme`, SQL nos DAOs. |
-| **KISS** | Solução mais simples que resolve o problema. Sem over-engineering. |
-| **YAGNI** | A arquitetura suporta crescimento, mas o código só implementa o que o MVP precisa. |
-| **Clean Code** | Nomes descritivos, funções pequenas, comentários explicam o porquê. |
-| **TDD** | Testes escritos junto com cada usecase e repositório. |
+| **SOLID** | Each file has a single responsibility. Abstract contracts allow implementations to be swapped. |
+| **DRY** | Strings in `app_strings`, colours in `app_theme`, SQL in the DAOs. |
+| **KISS** | The simplest solution that solves the problem. No over-engineering. |
+| **YAGNI** | The architecture supports growth, but the code only implements what the MVP needs. |
+| **Clean Code** | Descriptive names, small functions, comments explain the why. |
+| **TDD** | The data access layer is developed test-first against an in-memory SQLite database. |
 
 ---
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
-Feito por **Vitor Farani Barbosa**
+Built by **Vitor Farani Barbosa**
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?logo=linkedin)](https://www.linkedin.com/in/vitor-farani/)
 [![GitHub](https://img.shields.io/badge/GitHub-black?logo=github)](https://github.com/Vitorfarani)
